@@ -4,6 +4,7 @@
 
     <parameters>
         <parameter key="swarrot.channel_factory.pecl.class">Swarrot\SwarrotBundle\Broker\PeclFactory</parameter>
+        <parameter key="swarrot.channel_factory.phpamqplib.class">Swarrot\SwarrotBundle\Broker\PhpAmqpLibFactory</parameter>
         <parameter key="swarrot.command.base.class">Swarrot\SwarrotBundle\Command\SwarrotCommand</parameter>
         <parameter key="swarrot.publisher.class">Swarrot\SwarrotBundle\Broker\Publisher</parameter>
     </parameters>
@@ -11,6 +12,10 @@
     <services>
         <service id="swarrot.channel_factory.pecl" class="%swarrot.channel_factory.pecl.class%">
             <tag name="swarrot.provider" alias="pecl" />
+        </service>
+
+        <service id="swarrot.channel_factory.phpamqplib" class="%swarrot.channel_factory.phpamqplib.class%">
+            <tag name="swarrot.provider" alias="amqp" />
         </service>
 
         <service id="swarrot.command.base" class="%swarrot.command.base.class%" abstract="true">
