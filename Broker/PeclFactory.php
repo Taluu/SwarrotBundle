@@ -7,9 +7,10 @@ use Swarrot\Broker\MessagePublisher\PeclPackageMessagePublisher;
 
 class PeclFactory implements FactoryInterface
 {
-    protected $connections      = array();
-    protected $channels         = array();
-    protected $messageProviders = array();
+    protected $connections       = array();
+    protected $channels          = array();
+    protected $messageProviders  = array();
+    protected $messagePublishers = array();
 
     /**
      * {@inheritDoc}
@@ -24,15 +25,17 @@ class PeclFactory implements FactoryInterface
      */
     public function getMessageProvider($name, $connection)
     {
-        if (!isset($this->messageProviders[$connection][$name])) {
-            if (!isset($this->messageProviders[$connection])) {
-                $this->messageProviders[$connection] = array();
-            }
+        if (!isset($this->messageProviders[$connection])) {
+            $this->messageProviders[$connection] = array();
+        }
 
+        if (!isset($this->messageProviders[$connection][$name])) {
             $queue = new \AMQPQueue(
                 $this->getChannel($connection)
             );
+
             $queue->setName($name);
+            $queue->declareQueue();
 
             $this->messageProviders[$connection][$name] = new PeclPackageMessageProvider($queue);
         }
@@ -45,15 +48,18 @@ class PeclFactory implements FactoryInterface
      */
     public function getMessagePublisher($name, $connection)
     {
-        if (!isset($this->messagePublishers[$connection][$name])) {
-            if (!isset($this->messagePublishers[$connection])) {
-                $this->messagePublishers[$connection] = array();
-            }
+        if (!isset($this->messagePublishers[$connection])) {
+            $this->messagePublishers[$connection] = array();
+        }
 
+        if (!isset($this->messagePublishers[$connection][$name])) {
             $exchange = new \AMQPExchange(
                 $this->getChannel($connection)
             );
+
             $exchange->setName($name);
+            $exchange->setType(AMQP_EX_TYPE_DIRECT);
+            $exchange->declareExchange();
 
             $this->messagePublishers[$connection][$name] = new PeclPackageMessagePublisher($exchange);
         }
